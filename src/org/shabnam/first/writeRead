@@ -1,0 +1,110 @@
+xml:
+<?xml version="1.0" encoding="UTF-8"?>
+
+<RelativeLayout tools:context=".MainActivity" android:layout_height="match_parent" android:layout_width="match_parent" xmlns:tools="http://schemas.android.com/tools" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:android="http://schemas.android.com/apk/res/android">
+
+<EditText android:layout_height="200dp" android:layout_width="match_parent" android:id="@+id/edit_text"/>
+
+<Button android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/button_save" android:onClick="saveOnClick" android:text="save" android:layout_marginTop="17dp" android:layout_centerHorizontal="true" android:layout_below="@+id/edit_text"/>
+
+<Button android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/button_load" android:onClick="loadOnClick" android:text="load" android:layout_marginTop="17dp" android:layout_below="@id/button_save" android:layout_alignStart="@id/button_save"/>
+
+</RelativeLayout>
+
+
+-------------------------------------------------------------------------------------------------------------------
+MainActivity.java
+
+package com.example.readwrite;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+public class MainActivity extends AppCompatActivity {
+    private static final String FILE_NAME="example.txt";
+    EditText mEditText;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        mEditText=findViewById(R.id.edit_text);
+    }
+
+    public void saveOnClick(View view) {
+    String text=mEditText.getText().toString();
+        FileOutputStream fos=null;
+        try {
+            fos=openFileOutput(FILE_NAME,MODE_PRIVATE);
+            fos.write(text.getBytes());
+            mEditText.getText().clear();
+            Toast.makeText(this,"save To"+getFilesDir()+"/"+FILE_NAME,Toast.LENGTH_LONG).show();
+        }catch (FileNotFoundException e){
+            e.printStackTrace();
+        }catch (IOException e){
+            e.printStackTrace();
+        }finally {
+            if (fos!=null){
+                try {
+                    fos.close();
+                }catch(IOException e){
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public void loadOnClick(View view) {
+        FileInputStream fis=null;
+        try {
+            fis = openFileInput(FILE_NAME);
+            InputStreamReader isr=new InputStreamReader(fis);
+            BufferedReader br=new BufferedReader(isr);
+            StringBuilder sb=new StringBuilder();
+            String text;
+
+            while((text=br.readLine()) != null){
+            sb.append(text).append("\n");
+            }
+            mEditText.setText(sb.toString());
+
+        }catch (FileNotFoundException e){
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            if(fis !=null){
+               try {
+                   fis.close();
+               }catch (IOException e){
+                   e.printStackTrace();
+               }
+            }
+        }
+    }
+}
+//////////////////////////////////////////////////////////////////
+Manifest
+<uses-permission android:name="android.permission.INTERNET"/>
+
+<uses-permission android:name="android.permission.CAMERA"/>
+
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+
+
+
+
+
